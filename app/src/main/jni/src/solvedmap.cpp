@@ -56,7 +56,6 @@ solvedMap_c::~solvedMap_c(void) {  }
 
 void solvedMap_c::save(void)
 {
-#if 0
   std::ofstream out((getHome()+"solved.txt").c_str());
 
   // save the users first, don't save the default user
@@ -65,7 +64,6 @@ void solvedMap_c::save(void)
 
   for (std::set<std::string>::iterator i = map.begin(); i != map.end(); i++)
     out << *i << std::endl;
-#endif
 }
 
 void solvedMap_c::addLevel(const std::string & hash) {
