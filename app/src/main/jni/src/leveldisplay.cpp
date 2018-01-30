@@ -41,6 +41,8 @@ void levelDisplay_c::load(const textsections_c & sections, const std::string & u
   gr.setTheme(getTheme());
 
   Min = Sec = -1;
+
+  prepareBackground();
 }
 
 levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.getIdentical()), target(t), gr(g) {
@@ -49,7 +51,7 @@ levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.get
 
 levelDisplay_c::~levelDisplay_c(void) { }
 
-void levelDisplay_c::updateBackground(void)
+void levelDisplay_c::prepareBackground(void)
 {
   for (unsigned int y = 0; y < 13; y++)
   {
@@ -84,10 +86,7 @@ void levelDisplay_c::drawDominos(void) {
     Sec = newSec;
   }
 
-  // copy background, where necessary
-  for (unsigned int y = 0; y < 13; y++)
-    for (unsigned int x = 0; x < 20; x++)
-      target.copy(background, x*gr.blockX(), y*gr.blockY(), gr.blockX(), gr.blockY());
+  SDL_BlitSurface(background.getSurface(), NULL, target.getSurface(), NULL);
 
   static int XposOffset[] = {-16, -16,  0,-16,  0,  0, 0, 0, 0,  0, 0, 16,  0, 16, 16, 0};
   static int YposOffset[] = { -8,  -6,  0, -4,  0, -2, 0, 0, 0, -2, 0, -4,  0, -6, -8, 0};

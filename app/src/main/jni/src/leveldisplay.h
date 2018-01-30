@@ -53,8 +53,8 @@ class levelDisplay_c : public levelData_c {
 
     void load(const textsections_c & sections, const std::string & userString);
 
-    /* update the background where necessary */
-    void updateBackground(void);
+    /* prepares level background */
+    void prepareBackground(void);
 
     /* draw the changed stuff into the target surface */
     void drawDominos(void);

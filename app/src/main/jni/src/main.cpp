@@ -226,7 +226,6 @@ int playTick(levelPlayer_c & l, ant_c & a)
   l.performDoors();
   int res = l.performDominos(a);
 
-  l.updateBackground();
   l.drawDominos();
   a.draw();
 
@@ -521,7 +520,6 @@ try {
 
             case ST_PREREPLAY:
             case ST_PREPLAY:
-              l.updateBackground();
                   l.drawDominos();
                   a.draw();
                   ticks = SDL_GetTicks();    // this might have taken some time so reinit the ticks
