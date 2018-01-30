@@ -64,7 +64,7 @@ void levelDisplay_c::updateBackground(void)
           background.blitBlock(gr.getBgTile(getBg(x, y, b)), x*gr.blockX(), y*gr.blockY());
         background.blitBlock(gr.getFgTile(getFg(x, y)), x*gr.blockX(), y*gr.blockY());
 
-        //background.gradient(gr.blockX()*x, gr.blockY()*y, gr.blockX(), gr.blockY());
+        background.gradient(gr.blockX()*x, gr.blockY()*y, gr.blockX(), gr.blockY());
       }
     }
 

@@ -162,12 +162,21 @@ void surface_c::gradient(int x, int y, int w, int h) {
   // make sure we only work with valid pixels
   if (y+h >= video->h) h = video->h-y;
 
+  if (SDL_MUSTLOCK(video)) {
+      if(SDL_LockSurface(video) != 0)
+      {
+        SDL_Log( "Surface could not be locked! SDL Error: %s\n", SDL_GetError() );
+        throw std::exception();
+      }
+  }
+
   for (int i = 0; i < h; i++)
     for (int j = 0; j < w; j++) {
+      uint32_t* pixelAddress = ((uint32_t*)(((uint8_t*)video->pixels) + (y+i) * video->pitch + video->format->BytesPerPixel*(x+j)));
 
-      Uint8 r, g, b;
+      Uint8 r, g, b, a;
 
-      SDL_GetRGB(*((uint32_t*)(((uint8_t*)video->pixels) + (y+i) * video->pitch + video->format->BytesPerPixel*(x+j))), video->format, &r, &g, &b);
+      SDL_GetRGBA(*pixelAddress, video->format, &r, &g, &b, &a);
 
       double val = (2.0-((1.0*x+j)/video->w + (1.0*y+i)/video->h));
       val += (1.0*rand()/RAND_MAX)/20 - 1.0/40;
@@ -178,8 +187,15 @@ void surface_c::gradient(int x, int y, int w, int h) {
       g = (Uint8)(((255.0-g)*val+g)*g/255);
       b = (Uint8)(((255.0-b)*val+b)*b/255);
 
-      *((uint32_t*)(((uint8_t*)video->pixels) + (y+i) * video->pitch + video->format->BytesPerPixel*(x+j))) = SDL_MapRGB(video->format, r, g, b);
+      Uint32 color = SDL_MapRGBA(video->format, r, g, b, a);
+      for (int k = 0; k < video->format->BytesPerPixel; ++k) {
+        *((uint8_t*)pixelAddress + k) = *((uint8_t*)&color + k);
+      }
     }
+
+  if (SDL_MUSTLOCK(video)) {
+      SDL_UnlockSurface(video);
+  }
 }
 
 void screen_c::flipComplete(void)
@@ -193,7 +209,11 @@ void screen_c::flipComplete(void)
 #else
 
   if (SDL_MUSTLOCK(video)) {
-      SDL_LockSurface(video);
+      if(SDL_LockSurface(video) != 0)
+      {
+        SDL_Log( "Screen surface could not be locked! SDL Error: %s\n", SDL_GetError() );
+        throw std::exception();
+      }
   }
 
   void* mPixels;
@@ -399,8 +419,11 @@ bool screen_c::flipAnimate(void)
     }
   }
 
-  //SDL_UpdateRects(video, count, rects);
-  SDL_UpdateWindowSurface( gWindow );
+  // @todo Update only count rectangles from rects array.
+  int saveAnimationState = animationState;
+  flipComplete();
+  animationState = saveAnimationState;
+  animationState = 64;
 
   if (animationState == 64)
   {
@@ -496,8 +519,6 @@ static std::vector<std::string> split(const std::string & text, char splitter)
 
 unsigned int surface_c::renderText(const fontParams_s * par, const std::string & t)
 {
-  //SDL_Log("%s", t.c_str());
-
   // make some safety checks, empty strings are not output
   bool onlySpace = true;
   for (size_t i = 0; i < t.length(); i++)
@@ -626,21 +647,21 @@ unsigned int surface_c::renderText(const fontParams_s * par, const std::string &
   return lines;
 }
 
-unsigned int getFontHeight(unsigned int font) {
+int getFontHeight(unsigned int font) {
   if (font < fonts.size())
     return TTF_FontLineSkip(fonts[font]);
   else
     return 0;
 }
 
-unsigned int getTextWidth(unsigned int font, const std::string & t) {
+int getTextWidth(unsigned int font, const std::string & t) {
   int w = 0;
   TTF_SizeUTF8(fonts[font], t.c_str(), &w, 0);
 
   return w;
 }
 
-unsigned int getTextHeight(const fontParams_s * par, const std::string & t) {
+int getTextHeight(const fontParams_s * par, const std::string & t) {
 
   std::vector<std::string> words = split(t.c_str(), ' ');
 
