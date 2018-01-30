@@ -103,7 +103,7 @@ void graphicsN_c::getAnimation(int anim, pngLoader_c * png) {
   for (unsigned int j = 0; j < getAntImages(anim); j++) {
 
     SDL_Surface * v = SDL_CreateRGBSurface(0, png->getWidth(), 75, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-    //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+    SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
     png->getPart(v);
 
@@ -141,7 +141,7 @@ void graphicsN_c::loadGraphics(void) {
       for (unsigned int j = 0; j < numDominos[i]; j++) {
 
         SDL_Surface * v = SDL_CreateRGBSurface(0, png.getWidth(), 58, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-        //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+        SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
         png.getPart(v);
         setDomino(i, j, v);
@@ -190,7 +190,7 @@ void graphicsN_c::loadGraphics(void) {
     for (unsigned int i = 0; i < 7; i++) {
       for (unsigned int j = 0; j < 15; j++) {
         SDL_Surface * v = SDL_CreateRGBSurface(0, png.getWidth(), 55, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-        //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+        SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
         png.getPart(v);
 
@@ -198,16 +198,20 @@ void graphicsN_c::loadGraphics(void) {
       }
     }
 
-    // copy some surfaces surfaces
+    // copy some surfaces
     for (unsigned int i = 7; i < 10; i++) {
       for (unsigned int j = 0; j < 15; j++) {
-        //setCarriedDomino(i, j, SDL_DisplayFormatAlpha(getCarriedDomino(i-1, j)));
+        SDL_Surface* s = getCarriedDomino(i-1, j);
+        SDL_Surface* cs = SDL_ConvertSurfaceFormat(s, s->format->format, 0);
+        setCarriedDomino(i, j, cs);
       }
     }
 
     for (unsigned int i = 10; i < 12; i++) {
       for (unsigned int j = 0; j < 15; j++) {
-        //setCarriedDomino(i, j, SDL_DisplayFormatAlpha(getCarriedDomino(i & 1, j)));
+        SDL_Surface* s = getCarriedDomino(i & 1, j);
+        SDL_Surface* cs = SDL_ConvertSurfaceFormat(s, s->format->format, 0);
+        setCarriedDomino(i, j, cs);
       }
     }
 
@@ -215,7 +219,7 @@ void graphicsN_c::loadGraphics(void) {
     for (unsigned int i = 12; i < 16; i++) {
       for (unsigned int j = 0; j < 15; j++) {
         SDL_Surface * v = SDL_CreateRGBSurface(0, png.getWidth(), 55, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-        //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+        SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
         png.getPart(v);
 
@@ -234,7 +238,7 @@ void graphicsN_c::loadGraphics(void) {
     }
 
     SDL_Surface * v = SDL_CreateRGBSurface(0, png.getWidth(), 48, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-    //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+    SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
     for (int i = 0; i < 3; i++) {
 
@@ -243,7 +247,7 @@ void graphicsN_c::loadGraphics(void) {
       for (int x = 0; x < 3; x++) {
 
         SDL_Surface * w = SDL_CreateRGBSurface(0, 40, 48, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-        //SDL_SetAlpha(w, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+        SDL_SetSurfaceBlendMode(w, SDL_BLENDMODE_BLEND);
 
         for (unsigned int y = 0; y < 48; y++)
           memcpy((char*)w->pixels+y*w->pitch,
@@ -268,7 +272,7 @@ void graphicsN_c::loadTheme(const std::string & name) {
   pngLoader_c png(dataPath+"/themes/"+name+".png");
 
   SDL_Surface * v = SDL_CreateRGBSurface(0, png.getWidth(), 48, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-  //SDL_SetAlpha(v, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+  SDL_SetSurfaceBlendMode(v, SDL_BLENDMODE_BLEND);
 
   unsigned int xBlocks = png.getWidth()/40;
   unsigned int yBlocks = png.getHeight()/48;
@@ -301,7 +305,7 @@ void graphicsN_c::loadTheme(const std::string & name) {
         if (x < xBlocks)
         {
           SDL_Surface * w = SDL_CreateRGBSurface(0, 40, 48, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-          //SDL_SetAlpha(w, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+          SDL_SetSurfaceBlendMode(w, SDL_BLENDMODE_BLEND);
 
           for (unsigned int y = 0; y < 48; y++)
             memcpy((char*)w->pixels+y*w->pitch,
@@ -321,7 +325,7 @@ void graphicsN_c::loadTheme(const std::string & name) {
         if (x < xBlocks)
         {
           SDL_Surface * w = SDL_CreateRGBSurface(0, 40, 48, 32, 0xff, 0xff00, 0xff0000, 0xff000000);
-          //SDL_SetAlpha(w, SDL_SRCALPHA | SDL_RLEACCEL, 0);
+          SDL_SetSurfaceBlendMode(w, SDL_BLENDMODE_BLEND);
 
           for (unsigned int y = 0; y < 48; y++)
             memcpy((char*)w->pixels+y*w->pitch,
