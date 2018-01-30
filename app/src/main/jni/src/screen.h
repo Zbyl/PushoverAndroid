@@ -82,6 +82,8 @@ class surface_c {
     surface_c(SDL_Surface * c) : video(c) {}
     ~surface_c(void);
 
+    SDL_Surface* getSurface() { return video; }
+
     // blit the complete surface s so that the lower left corner of x is at x, y
     void blit(SDL_Surface * s, int x, int y);
     void blitBlock(SDL_Surface * s, int x, int y);
@@ -114,10 +116,12 @@ class screen_c : public surface_c {
 
     int animationState;
     uint16_t blockX, blockY;
-    SDL_Window *gWindow;
-    SDL_Renderer* gRenderer;
     SDL_Texture* screenTexture;
     bool showFullscreen;
+
+  public:
+    SDL_Window *gWindow;
+    SDL_Renderer* gRenderer;
 
 public:
 
