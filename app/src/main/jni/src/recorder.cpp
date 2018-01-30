@@ -53,8 +53,6 @@ void recorder_c::load(const std::string & filename) {
 }
 
 void recorder_c::save(const std::string & prefix) const {
-  return;
-
   /* find first unused filename */
   std::string filename;
   for (unsigned int num = 1; ; num++) {
