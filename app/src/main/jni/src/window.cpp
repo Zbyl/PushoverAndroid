@@ -72,7 +72,7 @@
 #define SEP_COL_G 90
 #define SEP_COL_B 60
 
-window_c::window_c(unsigned char x_, unsigned char y_, unsigned char w_, unsigned char h_, surface_c & s, graphics_c & g) : x(x_), y(y_), w(w_), h(h_), surf(s), gr(g), escapePressed(false) {
+window_c::window_c(unsigned char x_, unsigned char y_, unsigned char w_, unsigned char h_, surface_c & s, graphics_c & g) : x(x_), y(y_), w(w_), h(h_), surf(s), gr(g), escapePressed(false), screenTouched(false) {
 
   if (w < 2 || h < 2) return;
 
@@ -142,8 +142,8 @@ void helpWindow_c::displayCurrentPage(void)
 
   fontParams_s par;
 
-  uint32_t page = *(pages.rbegin());
-  uint32_t ypos = (Y()+1)*gr.blockY();
+  int page = *(pages.rbegin());
+  int ypos = (Y()+1)*gr.blockY();
 
   if (page == 0)
   {
@@ -167,8 +167,8 @@ void helpWindow_c::displayCurrentPage(void)
 
   nextPage = 0;
 
-  uint32_t column = 0;
-  uint32_t linehight = SY;
+  int column = 0;
+  int linehight = SY;
 
   while (page < NUM_DOMINOS)
   {
@@ -195,7 +195,7 @@ void helpWindow_c::displayCurrentPage(void)
     s.renderText(&par, _(dominoHelp[page].text.c_str()));
 
     {
-      uint32_t h = getTextHeight(&par, _(dominoHelp[page].text.c_str()));
+      int h = getTextHeight(&par, _(dominoHelp[page].text.c_str()));
       h += 10;
       if (h > linehight)
         linehight = h;
@@ -253,6 +253,25 @@ bool helpWindow_c::handleEvent(const SDL_Event & event) {
         return true;
     }
 
+    if (screenTouched)
+    {
+        if (screenTouchX < 0.5) {
+          if (pages.size() > 1)
+          {
+            pages.pop_back();
+            displayCurrentPage();
+            return true;
+          }
+        } else {
+          if (nextPage > 0)
+          {
+            pages.push_back(nextPage);
+            displayCurrentPage();
+            return true;
+          }
+        }
+    }
+
   if (event.type == SDL_KEYDOWN)
   {
     if (   event.key.keysym.sym == SDLK_ESCAPE
@@ -273,7 +292,6 @@ bool helpWindow_c::handleEvent(const SDL_Event & event) {
     }
     if (event.key.keysym.sym == SDLK_RIGHT)
     {
-
       if (nextPage > 0)
       {
         pages.push_back(nextPage);
@@ -322,7 +340,7 @@ aboutWindow_c::aboutWindow_c(surface_c & s, graphics_c & g) : window_c(2, 0, 16,
   surf.fillRect(gr.blockX()*(X()+1), ypos, gr.blockX()*(W()-2), 2, TXT_COL_R, TXT_COL_G, TXT_COL_B);
   ypos += 20;
 
-  unsigned int lineH = getFontHeight(FNT_SMALL);  // height of one entry line
+  int lineH = getFontHeight(FNT_SMALL);  // height of one entry line
 
   par.font = FNT_SMALL;
   par.alignment = ALN_TEXT;
@@ -404,7 +422,7 @@ void listWindow_c::redraw(void) {
   surf.fillRect(gr.blockX()*(x+1), ypos, gr.blockX()*(w-2), 2, TXT_COL_R, TXT_COL_G, TXT_COL_G);
   ypos += 20;
 
-  unsigned int lineH = getFontHeight(FNT_NORMAL);  // height of one entry line
+  int lineH = getFontHeight(FNT_NORMAL);  // height of one entry line
 
   menuLines = (gr.blockY()*(y+h-1)-ypos) / lineH;
 
@@ -515,8 +533,13 @@ extern SDL_Rect gScreenRect;
 
 bool window_c::handleEvent(const SDL_Event & event) {
     escapePressed = false;
+    screenTouched = false;
     if (event.type == SDL_FINGERDOWN)
     {
+        screenTouched = true;
+        screenTouchX = event.tfinger.x;
+        screenTouchY = event.tfinger.y;
+
         SDL_Point point;
         bool showFullscreen = true;
         if (showFullscreen) {
@@ -540,16 +563,16 @@ bool listWindow_c::handleEvent(const SDL_Event & event) {
 
     if (window_c::handleEvent(event)) return true;
 
-    if (event.type == SDL_FINGERDOWN)
+    if (screenTouched)
     {
         SDL_Point point;
         bool showFullscreen = true;
         if (showFullscreen) {
-            point.x = event.tfinger.x * gr.resolutionX();
-            point.y = event.tfinger.y * gr.resolutionY();
+            point.x = screenTouchX * gr.resolutionX();
+            point.y = screenTouchY * gr.resolutionY();
         } else {
-            point.x = event.tfinger.x * gScreenRect.w;
-            point.y = event.tfinger.y * gScreenRect.h;
+            point.x = screenTouchX * gScreenRect.w;
+            point.y = screenTouchY * gScreenRect.h;
         }
 
         for (size_t i = 0; i < entries.size(); ++i) {
@@ -854,7 +877,7 @@ listWindow_c * getFailedWindow(int failReason, surface_c & surf, graphics_c & gr
       default: title = _("You failed... but I don't know why ...?"); break;
     }
 
-    unsigned int w = (getTextWidth(FNT_BIG, title) + gr.blockX() - 1) / gr.blockX();
+    int w = (getTextWidth(FNT_BIG, title) + gr.blockX() - 1) / gr.blockX();
 
     // make sure minimum size is fulfilled
     if (w < 14) w = 14;
@@ -882,7 +905,7 @@ listWindow_c * getTimeoutWindow(surface_c & surf, graphics_c & gr) {
     std::string title;
     title = _("Not quite, you were not fast enough, but you may continue if you want");
 
-    unsigned int w = (getTextWidth(FNT_BIG, title) + gr.blockX() - 1) / gr.blockX();
+    int w = (getTextWidth(FNT_BIG, title) + gr.blockX() - 1) / gr.blockX();
 
     // make sure minimum size is fulfilled
     if (w < 14) w = 14;
@@ -906,9 +929,15 @@ InputWindow_c::InputWindow_c(int x, int y, int w, int h, surface_c & s, graphics
   cursorPosition = 0;
   escape = false;
   redraw();
+  SDL_StartTextInput();
 }
 
+InputWindow_c::~InputWindow_c()
+{
+  SDL_StopTextInput();
+}
 
+// @todo Not used. Remove.
 static size_t utf8EncodeOne(uint16_t uni, char *utf8, size_t bufspace)
 {
   size_t bytes, si;
@@ -1033,26 +1062,25 @@ bool InputWindow_c::handleEvent(const SDL_Event & event)
         redraw();
       }
     }
-#if 0
-    else if (event.key.keysym.unicode >= 32)
-    {
-      if (getTextWidth(FNT_NORMAL, input+(char)event.key.keysym.unicode) < gr.blockX()*(w-2))
-      {
-        char utf8[10];
-        size_t s = utf8EncodeOne(event.key.keysym.unicode, utf8, 10);
-
-        for (int i = 0; i < s; i++)
-        {
-          input.insert(cursorPosition, 1, utf8[i]);
-          cursorPosition++;
-        }
-        redraw();
-      }
-    }
-#endif
     else
     {
     }
+  }
+
+  if (event.type == SDL_TEXTINPUT)
+  {
+      std::string utf8Text(event.text.text);
+      std::string newInput = input;
+      newInput.insert(cursorPosition, utf8Text);
+
+      if (getTextWidth(FNT_NORMAL, newInput) < gr.blockX()*(w-2))
+      {
+        input = newInput;
+        cursorPosition += utf8Text.length();
+        redraw();
+      }
+
+      return true;
   }
 
   return false;
@@ -1086,7 +1114,7 @@ void InputWindow_c::redraw(void)
   par.font = FNT_NORMAL;
   par.shadow = 0;
 
-  unsigned int wi = getTextWidth(FNT_NORMAL, input.substr(0, cursorPosition));
+  int wi = getTextWidth(FNT_NORMAL, input.substr(0, cursorPosition));
 
   surf.fillRect(gr.blockX()*(x+1)+wi, ypos, 4, getFontHeight(FNT_NORMAL), 0, 0, 0);
 

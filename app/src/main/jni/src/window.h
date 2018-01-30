@@ -48,6 +48,9 @@ class window_c {
     surface_c & surf;
     graphics_c & gr;
     bool escapePressed;
+    bool screenTouched;
+    float screenTouchX;
+    float screenTouchY;
 
     void clearInside(void);
 
@@ -145,6 +148,7 @@ class InputWindow_c : public window_c {
 
     InputWindow_c(int x, int y, int w, int h, surface_c & s, graphics_c & gr,
         const std::string & title);
+    ~InputWindow_c();
 
     // the the user has selected something
     const std::string & getText(void) { return input; } // which list entry was selected
