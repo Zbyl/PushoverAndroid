@@ -594,7 +594,6 @@ try {
               nextState = ST_MAIN;
             } else {
               window->handleEvent(event);
-                //window->done = true;
               if (window->isDone()) {
                 switch (dynamic_cast<listWindow_c *>(window)->getSelection()) {
                   case 0:
@@ -732,7 +731,6 @@ try {
               nextState = ST_MAIN;
             } else {
               window->handleEvent(event);
-                //window->done = true;
               if (window->isDone()) {
                 unsigned int sel = dynamic_cast<listWindow_c *>(window)->getSelection();
                 if (sel >= levelsetList->getLevelsetNames().size())
@@ -752,7 +750,6 @@ try {
               nextState = ST_MAIN;
             } else {
               window->handleEvent(event);
-                //window->done = true;
               if (window->isDone()) {
                 unsigned int sel = dynamic_cast<listWindow_c *>(window)->getSelection();
                 levelset_c ls = levelsetList->getLevelset(selectedMission);

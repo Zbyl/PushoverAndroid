@@ -71,9 +71,8 @@ bool luaClass_c::getBool(const std::string & name) {
 
 /* functions to evaluate lua code */
 int luaClass_c::doFile(const std::string & fname) {
-    std::string contents = loadFileAsString(fname);
-    return doString(contents);
-  //return luaL_dofile(L, fname.c_str());
+  std::string contents = loadFileAsString(fname);
+  return doString(contents);
 }
 int luaClass_c::doString(const std::string & code) {
   return luaL_dostring(L, code.c_str());

@@ -41,7 +41,7 @@ class graphics_c;
 
 class window_c {
 
-  public:
+  protected:
 
     unsigned char x, y, w, h;
     bool done;
