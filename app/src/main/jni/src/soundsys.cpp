@@ -154,7 +154,9 @@ void soundSystem_c::playMusic(const std::string & fname) {
 
   if (!playMusicSwitch)
   {
-    currentlyPlaying = fname;
+    if (fname != "") {
+      currentlyPlaying = fname;
+    }
     return;
   }
 
