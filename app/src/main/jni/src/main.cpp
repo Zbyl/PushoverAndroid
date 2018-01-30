@@ -43,10 +43,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#if defined(__AROS__)
-#include <proto/dos.h>
-#endif
-
 static void check_record(const std::string & rec_path, levelsetList_c & levelsetList,
                          unsigned int & count, unsigned int & failed,
                          std::string checker(const ant_c & a, const levelData_c & l)) {
@@ -146,29 +142,12 @@ std::string checker3(const ant_c & a, const levelData_c & l) {
 
 static std::string getDataDir(void)
 {
-#if defined (__AROS__)
-  static char binaryPath[1024] = {0};
-  if (!*binaryPath)
-    NameFromLock(GetProgramDir(), binaryPath, sizeof(binaryPath));
-  return std::string(binaryPath);
-#else
   return "pushover";
-#endif
 }
 
 static std::string getLocaleDir(void)
 {
-#if defined (__AROS__)
-  static char localePath[1024] = {0};
-  if (!*localePath)
-  {
-    AddPart(localePath, getDataDir().c_str(), sizeof(localePath));
-    AddPart(localePath, "locale", sizeof(localePath));
-  }
-  return localePath;
-#else
   return "locale";
-#endif
 }
 
 const int max_fingers = 5;
@@ -337,9 +316,6 @@ try {
   if (argc >= 2 && strcmp(argv[1], "-f") == 0) fullscreen = true;
 
   // setup internationalization
-#if defined (__AROS__)
-  amigaLocale(LC_MESSAGES);
-#endif
   //setlocale(LC_MESSAGES, "");
   //bindtextdomain("pushover", getLocaleDir().c_str());
   //bind_textdomain_codeset("pushover", "UTF-8");

@@ -27,11 +27,8 @@
 #include "textsections.h"
 #include "solvedmap.h"
 #include "leveldata.h"
-#if defined(__AROS__)
 
-#else
 //#include "config.h"
-#endif
 
 #include <SDL.h>
 

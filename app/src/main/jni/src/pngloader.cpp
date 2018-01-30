@@ -21,14 +21,7 @@
 
 #include "pngloader.h"
 
-#if defined(__AROS__)
-#include <aros/cpu.h>
-#if AROS_BIG_ENDIAN
-#define WORDS_BIGENDIAN
-#endif
-#else
 //#include "../config.h"
-#endif
 
 #include <iostream>
 #include "android_support.h"

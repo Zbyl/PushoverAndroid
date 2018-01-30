@@ -26,13 +26,7 @@
 
 #include <string>
 
-#ifdef __AROS__
-extern "C" {
-#include "libintl.h"
-}
-#else
 //#include "libintl.h"
-#endif
 
 /* this is the display class, there is only one instance for this class and it contains
  * the complete screen

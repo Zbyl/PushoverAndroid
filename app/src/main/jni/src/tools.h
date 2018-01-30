@@ -40,9 +40,4 @@ std::vector<std::string> directoryEntries(const std::string & path);
 // return current system time
 uint64_t getTime(void);
 
-// setup the loacle variables for gettext accoding to
-// amigaOS loacle names... just for a few languages, should include
-// all the names required for possible translations
-void amigaLocale(void);
-
 #endif

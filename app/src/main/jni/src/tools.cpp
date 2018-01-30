@@ -41,11 +41,6 @@
 
 #include <stdexcept>
 
-#if defined(__AROS__)
-#include <proto/locale.h>
-#include <proto/dos.h>
-#endif
-
 uint64_t getTime(void)
 {
 #ifdef WIN32
@@ -200,76 +195,5 @@ std::vector<std::string> directoryEntries(const std::string & path) {
   if (::closedir(dir) != 0)
     throw std::runtime_error("Can't close directory: " + path);
   return entries;
-#endif
-}
-
-
-void amigaLocale(void)
-{
-
-#if defined (__AROS__)
-  struct LocaleConv
-  {
-    char *langstr;
-    char *gmostr;
-  };
-
-  struct LocaleConv LocaleConvTab[] =
-  {
-    {"catal�", "ca"}, // Catalan
-    {"czech", "cz"}, // French
-    {"dansk", "da"}, // Danish
-    {"deutsch", "de"}, // German
-    {"espa�ol", "es"}, // Spanish
-    {"esperanto", "eo"}, // Esperanto
-    {"fran�ais", "fr"}, // French
-    {"hrvatski", "hr"}, // Croatian
-    {"ellinik�", "el"}, // Greek
-    {"�slenska", "is"}, // Icelandic
-    {"italiano", "it"}, // Italian
-    {"magyar", "hu"}, // Hungarian <3
-    {"malti", "mt"}, // Maltese
-    {"nederlands", "nl"}, // Dutch
-    {"norsk", "no"}, // Norwegian Nynorsk
-    {"polski", "pl"}, // Polish
-    {"portugu�s" , "pt"}, // Portuguese
-    {"russian", "ru"}, // Russian
-    {"shqipja", "sq"}, // Albanian
-    {"svenska", "sv"}, // Swedish
-    {"suomi", "fi"}, // Finnish
-    {"thai", "th"}, // Thai
-    {"t�rk�e", "tr"}, // Turkish
-    {0, 0}
-  };
-
-  struct Locale *defaultLocale;
-  char *locale = NULL;
-
-  if ((defaultLocale = OpenLocale(NULL)))
-  {
-    int i = 0;
-    while (!locale && (i < 10) && defaultLocale->loc_PrefLanguages[i])
-    {
-      struct LocaleConv *lcptr = LocaleConvTab;
-
-      while (lcptr->langstr)
-      {
-        if (!StrnCmp(defaultLocale, lcptr->langstr, defaultLocale->loc_PrefLanguages[i], -1, SC_ASCII))
-          break;
-
-        lcptr++;
-      }
-
-      locale = lcptr->gmostr;
-
-      i++;
-    }
-    CloseLocale(defaultLocale);
-  }
-
-  if (locale)
-  {
-    SetVar("LC_MESSAGES", locale, strlen(locale) + 1, GVF_LOCAL_ONLY);
-  }
 #endif
 }
