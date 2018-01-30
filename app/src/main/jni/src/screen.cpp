@@ -82,18 +82,6 @@ void screen_c::toggleFullscreen(void)
   //SDL_WM_ToggleFullScreen(video);
 }
 
-void surface_c::clearDirty(void)
-{
-  for (unsigned int y = 0; y < 13; y++)
-    dynamicDirty[y] = 0;
-}
-
-void surface_c::markAllDirty(void)
-{
-  for (unsigned int y = 0; y < 13; y++)
-    dynamicDirty[y] = 0xFFFFFFFF;
-}
-
 void surface_c::blit(SDL_Surface * s, int x, int y) {
 
   if (s && video)
@@ -223,45 +211,6 @@ void screen_c::flipComplete(void)
 
   SDL_RenderPresent( gRenderer );
 
-  animationState = 0;
-}
-
-void screen_c::flipDirty(void)
-{
-  flipComplete();
-  return;
-
-  SDL_Rect rects[10*13];
-  int numrects = 0;
-
-  for (int y = 0; y < 13; y++)
-  {
-    int rowStart = -1;
-
-    for (int x = 0; x < 21; x++)
-    {
-      if (isDirty(x, y) && (x < 20))
-      {
-        if (rowStart == -1)
-          rowStart = x;
-      }
-      else if (rowStart != -1)
-      {
-        rects[numrects].y = blockY*y;
-        rects[numrects].x = blockX*rowStart;
-
-        if (y == 12)
-          rects[numrects].h = blockY/2;
-        else
-          rects[numrects].h = blockY;
-
-        rects[numrects].w = blockX*(x-rowStart);
-        numrects++;
-        rowStart = -1;
-      }
-    }
-  }
-  //SDL_UpdateRects(video, numrects, rects);
   animationState = 0;
 }
 

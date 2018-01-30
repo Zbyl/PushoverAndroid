@@ -58,10 +58,6 @@ class levelDisplay_c : public levelData_c {
 
     /* draw the changed stuff into the target surface */
     void drawDominos(void);
-
-    void markDirty(int x, int y) { target.markDirty(x, y); }
-    void markDirtyBg(int x, int y) { background.markDirty(x, y); target.markDirty(x, y); }
-    bool isDirty(int x, int y) { return target.isDirty(x, y); }
 };
 
 

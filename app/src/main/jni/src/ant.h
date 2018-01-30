@@ -70,8 +70,7 @@ class ant_c {
   public:
 
     // initialize the ant state for level entering
-    // the level is saved and used later on for dirty block
-    // marking, and level modification
+    // the level is saved and used later on for level modification
     ant_c(levelPlayer_c & level, graphics_c & gr, surface_c & target);
 
     void initForLevel(void);

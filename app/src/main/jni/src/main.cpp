@@ -396,11 +396,9 @@ try {
       nextState = ST_PREPLAY;
     } else {
       nextState = ST_PROFILE_INIT;
-      screen.markAllDirty();
     }
   } else {
     nextState = ST_PROFILE_INIT;
-    screen.markAllDirty();
   }
 
 
@@ -674,8 +672,7 @@ try {
               if (window->isDone()) {
                 switch (dynamic_cast<listWindow_c *>(window)->getSelection()) {
                   case 0:   // toggle full screen
-                    screen.toggleFullscreen();
-                        screen.markAllDirty();
+                        screen.toggleFullscreen();
                         window->resetWindow();
                         break;
 
@@ -1022,8 +1019,7 @@ try {
 
       // flip the screen, but not when in the preplaymodes
       if (currentState != ST_PREPLAY && currentState != ST_PREREPLAY) {
-        screen.flipDirty();
-        screen.clearDirty();
+        screen.flipComplete();
       }
     }
   }

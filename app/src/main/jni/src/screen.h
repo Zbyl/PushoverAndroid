@@ -74,11 +74,6 @@ class surface_c {
 
     SDL_Surface * video;
 
-  private:
-
-    // the dirty blocks
-    uint32_t dynamicDirty[13];
-
   public:
 
     SDL_Surface * getIdentical(void) const;
@@ -86,16 +81,6 @@ class surface_c {
     surface_c(void) : video(0) {}
     surface_c(SDL_Surface * c) : video(c) {}
     ~surface_c(void);
-
-    void markDirty(int x, int y) { if (x >= 0 && x < 20 && y >= 0 && y < 13) dynamicDirty[y] |= (1 << x); }
-    bool isDirty(int x, int y) {
-      if (x >= 0 && x < 20 && y >= 0 && y < 13)
-        return (dynamicDirty[y] & (1 << x)) != 0;
-      else
-        return false;
-    }
-    void clearDirty(void);
-    void markAllDirty(void);
 
     // blit the complete surface s so that the lower left corner of x is at x, y
     void blit(SDL_Surface * s, int x, int y);
@@ -140,9 +125,8 @@ public:
     screen_c(const graphics_c & gr);
     ~screen_c(void);
 
-    void flipComplete(void);  // flips the complete screen, not looking at the dirty blocks
-    void flipDirty(void);     // updates only the dirty blocks
-    bool flipAnimate(void);   // updates only the dirty blocks, but does that step by step resultin in an blending effetc return true, when done
+    void flipComplete(void);  // flips the screen
+    bool flipAnimate(void);   // updates screen step by step resulting in an blending effect returns true, when done
 
     void toggleFullscreen(void);
 };
