@@ -12,11 +12,35 @@ The primary goal of this fork is to provide Android support.
 
 This project uses Android Studio 3 and requires the following libraries:
 - SDL2-2.0.7
-- SDL2_mixer-2.0.2,
+- SDL2_mixer-2.0.2
+  Note: Set SUPPORT_MP3_MPG123 ?= false in Android.mk for x86 build to work.
+  This should be fixed in newer versions of SDL2_mixer.
 - SDL2_ttf-2.0.14
 - zlib1211
 - lpng1634
 - lua-5.3.4
+
+# Todo
+
+- Fix application exit.
+- Fix level fade in animation.
+- Fix sound enable bug?
+- Fix sound playing bug? (Falling  blocks for example.)
+- Domino fallen on blocker is draw on top after a while.
+- Loading level sets in levelset.cpp
+- Find all stat references.
+- Remove file IO from pngloader. Use SDL.
+- Remove AROS support.
+- Remove config.h. Introduce constant for version.
+- Fix t display (long cast) in userData_c::userData_c.
+
+- Re-enable localization
+- Cleanup fullscreen handling.
+- Re-enable windowed mode on desktops.
+- Prepare CMake projects for Windows and Linux.
+- Remove dirty rects tracking.
+
+- Refactor a lot...
 
 # SDL on Android
 
