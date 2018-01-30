@@ -38,20 +38,13 @@ screen_c::screen_c(const graphics_c & g) :
     throw std::exception();
   }
 
-  //gScreenSurface = SDL_GetWindowSurface( gWindow );
+  video = SDL_CreateRGBSurfaceWithFormat(0, g.resolutionX(), g.resolutionY(), 24, SDL_GetWindowPixelFormat( gWindow ));
+  if( video == NULL )
+  {
+    SDL_Log( "Surface could not be created! SDL Error: %s\n", SDL_GetError() );
+    throw std::exception();
+  }
 
-    if (showFullscreen) {
-      video = SDL_CreateRGBSurfaceWithFormat(0, g.resolutionX(), g.resolutionY(), 24, SDL_GetWindowPixelFormat( gWindow ));
-      if( video == NULL )
-      {
-        SDL_Log( "Surface could not be created! SDL Error: %s\n", SDL_GetError() );
-        throw std::exception();
-      }
-    } else {
-        //video = gScreenSurface;
-    }
-
-#if 1
   gRenderer = SDL_CreateRenderer( gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC );
   if( gRenderer == NULL )
   {
@@ -68,7 +61,6 @@ screen_c::screen_c(const graphics_c & g) :
     SDL_Log( "Screen texture could not be created! SDL Error: %s\n", SDL_GetError() );
     throw std::exception();
   }
-#endif
 }
 
 screen_c::~screen_c(void) {
@@ -200,14 +192,6 @@ void surface_c::gradient(int x, int y, int w, int h) {
 
 void screen_c::flipComplete(void)
 {
-  //SDL_Flip(video);
-#if 0
-  if (showFullscreen) {
-    SDL_BlitScaled(video, NULL, gScreenSurface, NULL);
-  }
-  SDL_UpdateWindowSurface( gWindow );
-#else
-
   if (SDL_MUSTLOCK(video)) {
       if(SDL_LockSurface(video) != 0)
       {
@@ -238,7 +222,6 @@ void screen_c::flipComplete(void)
   SDL_RenderCopyEx(gRenderer, screenTexture, NULL, NULL, 0, NULL, SDL_FLIP_NONE);
 
   SDL_RenderPresent( gRenderer );
-#endif
 
   animationState = 0;
 }
@@ -439,11 +422,11 @@ SDL_Surface * surface_c::getIdentical(void) const {
   if (!video)
     return 0;
 
-    SDL_Surface* newSurface = SDL_CreateRGBSurfaceWithFormat(0, video->w, video->h, 32, video->format->format);
-    if (!newSurface) {
-        SDL_Log( "Identical surface could not be created! SDL Error: %s\n", SDL_GetError() );
-        throw std::exception();
-    }
+  SDL_Surface* newSurface = SDL_CreateRGBSurfaceWithFormat(0, video->w, video->h, 32, video->format->format);
+  if (!newSurface) {
+      SDL_Log( "Identical surface could not be created! SDL Error: %s\n", SDL_GetError() );
+      throw std::exception();
+  }
   return newSurface;
 }
 

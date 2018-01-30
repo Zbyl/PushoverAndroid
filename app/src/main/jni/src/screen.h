@@ -132,7 +132,6 @@ class screen_c : public surface_c {
     SDL_Window *gWindow;
     SDL_Renderer* gRenderer;
     SDL_Texture* screenTexture;
-    //SDL_Surface* gScreenSurface;
     bool showFullscreen;
 
 public:
