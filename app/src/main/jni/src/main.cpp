@@ -221,6 +221,8 @@ static unsigned int getKeyMask(void) {
     if (touchIndex == 2 * 3 + 1) keyMask |= KEY_DOWN;
     if (touchIndex == 1 * 3 + 0) keyMask |= KEY_LEFT;
     if (touchIndex == 1 * 3 + 2) keyMask |= KEY_RIGHT;
+    if (touchIndex == 0 * 3 + 0) keyMask |= KEY_ACTION;
+    if (touchIndex == 0 * 3 + 2) keyMask |= KEY_ACTION;
     if (touchIndex == 1 * 3 + 1) keyMask |= KEY_ACTION;
     if (touchIndex == 2 * 3 + 0) keyMask |= KEY_ESC;
     if (touchIndex == 2 * 3 + 2) keyMask |= KEY_F1;
