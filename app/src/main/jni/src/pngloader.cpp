@@ -94,14 +94,6 @@ pngLoader_c::pngLoader_c(std::string fname) {
     }
   }
 
-#ifdef WORDS_BIGENDIAN
-
-  // for bigendian system we swap everything around
-  png_set_bgr(png_ptr);
-  png_set_swap_alpha(png_ptr);
-
-#endif
-
   png_read_update_info(png_ptr, info_ptr);
 }
 
