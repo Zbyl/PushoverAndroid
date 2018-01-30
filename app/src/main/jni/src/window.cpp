@@ -72,6 +72,8 @@
 #define SEP_COL_G 90
 #define SEP_COL_B 60
 
+const bool USING_TOUCH_UI = true;
+
 window_c::window_c(unsigned char x_, unsigned char y_, unsigned char w_, unsigned char h_, surface_c & s, graphics_c & g) : x(x_), y(y_), w(w_), h(h_), surf(s), gr(g), escapePressed(false), screenTouched(false) {
 
   if (w < 2 || h < 2) return;
@@ -398,9 +400,9 @@ bool aboutWindow_c::handleEvent(const SDL_Event & event) {
 
 void listWindow_c::redraw(void) {
 
-    for (auto& entry : entries) {
-        entry.lastPosition = {0, 0, 0, 0};
-    }
+  for (auto& entry : entries) {
+    entry.lastPosition = {0, 0, 0, 0};
+  }
   clearInside();
 
   fontParams_s par;
@@ -481,7 +483,7 @@ void listWindow_c::redraw(void) {
     par.font = FNT_NORMAL;
     par.alignment = ALN_CENTER;
 
-    if (line == current)
+    if ( (line == current) && !USING_TOUCH_UI )
     {
       par.color.r = SEL_COL_R; par.color.g = SEL_COL_G; par.color.b = SEL_COL_B;
     }
@@ -508,7 +510,17 @@ void listWindow_c::redraw(void) {
     par.box.w = gr.blockX()*(w-2);
     par.box.h = lineH;
 
-      entries[line].lastPosition = par.box;
+    {
+      int textWidth = getTextWidth(par.font, entries[line].text);
+      SDL_Rect box = par.box;
+      if (box.w > textWidth) {
+          int delta = box.w - textWidth;
+          box.x += delta / 2;
+          box.w -= delta;
+      }
+      entries[line].lastPosition = box;
+    }
+
     surf.renderText(&par, entries[line].text);
     if (entries[line].line)
     {
@@ -584,6 +596,18 @@ bool listWindow_c::handleEvent(const SDL_Event & event) {
             current = i;
             done = true;
             return true;
+        }
+
+        if (screenTouchY < 0.5) {
+          current -= 8;
+          if (current >= entries.size())
+            current = 0;
+          redraw();
+        } else {
+          current += 8;
+          if (current >= entries.size())
+            current = entries.size() - 1;
+          redraw();
         }
     }
 
