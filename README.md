@@ -23,6 +23,7 @@ This project uses Android Studio 3 and requires the following libraries:
 # Todo
 
 - Fix application exit.
+- Fix game timing.
 - Fix level fade in animation.
 - Fix sound enable bug?
 - Fix sound playing bug? (Falling  blocks for example.)
@@ -35,6 +36,7 @@ This project uses Android Studio 3 and requires the following libraries:
 - Remove config.h. Introduce constant for version.
 - Fix t display (long cast) in userData_c::userData_c.
 - Add click feedback on windows.
+- Dynamic modification of background is slow.
 
 - Re-enable localization
 - Cleanup fullscreen handling.
