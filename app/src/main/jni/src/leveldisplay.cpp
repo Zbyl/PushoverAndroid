@@ -42,7 +42,7 @@ void levelDisplay_c::load(const textsections_c & sections, const std::string & u
 
   Min = Sec = -1;
 
-  prepareBackground();
+  dynamicallyModfied = true;  // Hack
 }
 
 levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.getIdentical()), target(t), gr(g) {
@@ -84,6 +84,11 @@ void levelDisplay_c::drawDominos(void) {
 
     Min = newMin;
     Sec = newSec;
+  }
+
+  if (dynamicallyModfied) {
+    prepareBackground();
+    dynamicallyModfied = false;
   }
 
   SDL_BlitSurface(background.getSurface(), NULL, target.getSurface(), NULL);
