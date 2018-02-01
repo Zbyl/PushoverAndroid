@@ -69,7 +69,8 @@
 #define SEP_COL_G 90
 #define SEP_COL_B 60
 
-const bool USING_TOUCH_UI = true;
+const bool USING_ANDROID = true;
+const bool USING_TOUCH_UI = USING_ANDROID;
 
 window_c::window_c(unsigned char x_, unsigned char y_, unsigned char w_, unsigned char h_, surface_c & s, graphics_c & g) : x(x_), y(y_), w(w_), h(h_), surf(s), gr(g), escapePressed(false), screenTouched(false) {
 
@@ -95,14 +96,10 @@ void window_c::clearInside(void) {
       if (j+1 == h) yp = 2;
 
       surf.blitBlock(gr.getBoxBlock(yp*3+xp), (x+i)*gr.blockX(), (y+j)*gr.blockY());
-      surf.markDirty(x+i, y+j);
     }
 }
 
 window_c::~window_c(void) {
-  for (unsigned int i = 0; i < w; i++)
-    for (unsigned int j = 0; j < h; j++)
-      surf.markDirty(x+i, y+j);
 }
 
 #define NUM_DOMINOS 12
@@ -690,7 +687,9 @@ listWindow_c * getMainWindow(surface_c & surf, graphics_c & gr) {
         entries.push_back(listWindow_c::entry(_("Configuration")));
         entries.push_back(listWindow_c::entry(_("Profile Selection")));
         entries.push_back(listWindow_c::entry(_("About")));
-        entries.push_back(listWindow_c::entry(_("Quit")));
+        if (!USING_ANDROID) {
+          entries.push_back(listWindow_c::entry(_("Quit")));
+        }
     }
 
     return new listWindow_c(4, 2, 12, 8, surf, gr, _("Main menu"), entries, false);

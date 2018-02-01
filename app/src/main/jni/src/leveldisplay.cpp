@@ -39,10 +39,10 @@ void levelDisplay_c::load(const textsections_c & sections, const std::string & u
 
   // attention don't use many levels on the same graphics object
   gr.setTheme(getTheme());
-  background.markAllDirty();
-  target.markAllDirty();
 
   Min = Sec = -1;
+
+  dynamicallyModfied = true;  // Hack
 }
 
 levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.getIdentical()), target(t), gr(g) {
@@ -51,32 +51,25 @@ levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.get
 
 levelDisplay_c::~levelDisplay_c(void) { }
 
-void levelDisplay_c::updateBackground(void)
+void levelDisplay_c::prepareBackground(void)
 {
   for (unsigned int y = 0; y < 13; y++)
   {
     for (unsigned int x = 0; x < 20; x++)
     {
-      // when the current block is dirty, recreate it
-      if (background.isDirty(x, y))
-      {
-        for (unsigned char b = 0; b < getNumBgLayer(); b++)
-          background.blitBlock(gr.getBgTile(getBg(x, y, b)), x*gr.blockX(), y*gr.blockY());
-        background.blitBlock(gr.getFgTile(getFg(x, y)), x*gr.blockX(), y*gr.blockY());
-
-        background.gradient(gr.blockX()*x, gr.blockY()*y, gr.blockX(), gr.blockY());
-      }
+      for (unsigned char b = 0; b < getNumBgLayer(); b++)
+        background.blitBlock(gr.getBgTile(getBg(x, y, b)), x*gr.blockX(), y*gr.blockY());
+      background.blitBlock(gr.getFgTile(getFg(x, y)), x*gr.blockX(), y*gr.blockY());
     }
-
   }
-  background.clearDirty();
+
+  background.gradient(0, 0, 20 * gr.blockX(), 13 * gr.blockY());
 }
 
 void levelDisplay_c::drawDominos(void) {
 
   int timeLeft = getTimeLeft();
 
-  // the dirty marks for the clock
   {
 
     // calculate the second left
@@ -89,42 +82,20 @@ void levelDisplay_c::drawDominos(void) {
     int newSec = tm%60;
     int newMin = tm/60;
 
-    if (newSec != Sec || timeLeft == -1)
-    {
-      target.markDirty(3, 11);
-      target.markDirty(3, 12);
-    }
-
-    if (newSec != Sec || newMin != Min || timeLeft % 18 == 17 || timeLeft % 18 == 8 || timeLeft == -1)
-    {
-      target.markDirty(2, 11);
-      target.markDirty(2, 12);
-    }
-
-    if (newMin != Min || timeLeft == -1)
-    {
-      target.markDirty(1, 11);
-      target.markDirty(1, 12);
-    }
-
     Min = newMin;
     Sec = newSec;
   }
 
-  // copy background, where necessary
-  for (unsigned int y = 0; y < 13; y++)
-    for (unsigned int x = 0; x < 20; x++)
-      if (target.isDirty(x, y))
-        target.copy(background, x*gr.blockX(), y*gr.blockY(), gr.blockX(), gr.blockY());
+  if (dynamicallyModfied) {
+    prepareBackground();
+    dynamicallyModfied = false;
+  }
+
+  SDL_BlitSurface(background.getSurface(), NULL, target.getSurface(), NULL);
 
   static int XposOffset[] = {-16, -16,  0,-16,  0,  0, 0, 0, 0,  0, 0, 16,  0, 16, 16, 0};
   static int YposOffset[] = { -8,  -6,  0, -4,  0, -2, 0, 0, 0, -2, 0, -4,  0, -6, -8, 0};
   static int StoneImageOffset[] = {  7, 6, 0, 5, 0, 4, 0, 0, 0, 3, 0, 2, 0, 1, 0, 0};
-
-  // the idea behind this code is to repaint the dirty blocks. Dominos that are actually
-  // within neighbor block must be repaint, too, when they might reach into the actual
-  // block. But painting the neighbors is only necessary, when they are not drawn on
-  // their own anyway, so always check for !dirty of the "home-block" of each domino
 
   int SpriteYPos = gr.getDominoYStart();
 
@@ -133,36 +104,6 @@ void levelDisplay_c::drawDominos(void) {
     int SpriteXPos = -2*gr.blockX();
 
     for (int x = 0; x < 20; x++, SpriteXPos += gr.blockX()) {
-
-      if (!target.isDirty(x, y)) continue;
-
-      // paint the left neighbor domino, if it leans in our direction and is not painted on its own
-      if (y < 12 && x > 0 && !target.isDirty(x-1, y+1) && getDominoType(x-1, y+1) != DominoTypeEmpty &&
-          (getDominoState(x-1, y+1) > 8 ||
-           (getDominoType(x-1, y+1) == DominoTypeSplitter && getDominoState(x-1, y+1) != 8) ||
-           getDominoState(x-1, y+1) >= DominoTypeCrash0))
-      {
-        target.blit(gr.getDomino(getDominoType(x-1, y+1)-1, getDominoState(x-1, y+1)-1),
-            SpriteXPos-gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x-1, y+1))+gr.blockY());
-      }
-
-      if (x > 0 && !target.isDirty(x-1, y) && getDominoType(x-1, y) != DominoTypeEmpty &&
-          (getDominoState(x-1, y) > 8 ||
-           (getDominoType(x-1, y) == DominoTypeSplitter && getDominoState(x-1, y) != 8) ||
-           getDominoType(x-1, y) >= DominoTypeCrash0))
-      {
-        target.blit(gr.getDomino(getDominoType(x-1, y)-1, getDominoState(x-1, y)-1),
-            SpriteXPos-gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x-1, y)));
-      }
-
-      if (y < 12 && !target.isDirty(x, y+1) && getDominoType(x, y+1) != DominoTypeEmpty)
-      {
-        target.blit(gr.getDomino(getDominoType(x, y+1)-1, getDominoState(x, y+1)-1),
-            SpriteXPos,
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x, y+1))+gr.blockY());
-      }
 
       // paint the splitting domino for the splitter
       if (getDominoType(x, y) == DominoTypeSplitter &&
@@ -205,83 +146,13 @@ void levelDisplay_c::drawDominos(void) {
             SpriteXPos,
             SpriteYPos+gr.convertDominoY(getDominoYOffset(x, y)));
       }
-
-      // paint the right neighbor if it is leaning in our direction
-      if (x < 19 && y < 12 && !target.isDirty(x+1, y+1) && getDominoType(x+1, y+1) != DominoTypeEmpty &&
-          (getDominoState(x+1, y+1) < 8 ||
-           (getDominoType(x+1, y+1) == DominoTypeSplitter && getDominoState(x+1, y+1) != 8) ||
-           getDominoType(x+1, y+1) >= DominoTypeCrash0))
-      {
-        target.blit(gr.getDomino(getDominoType(x+1, y+1)-1, getDominoState(x+1, y+1)-1),
-            SpriteXPos+gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x+1, y+1))+gr.blockY());
-      }
-
-      if (x < 19 && !target.isDirty(x+1, y) && getDominoType(x+1, y) != DominoTypeEmpty &&
-          (getDominoState(x+1, y) < 8 ||
-           (getDominoType(x+1, y) == DominoTypeSplitter && getDominoState(x+1, y) != 8) ||
-           getDominoType(x+1, y) >= DominoTypeCrash0))
-      {
-        target.blit(gr.getDomino(getDominoType(x+1, y)-1, getDominoState(x+1, y)-1),
-            SpriteXPos+gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x+1, y)));
-      }
-
-      if (y >= 11) continue;
-
-      if (!target.isDirty(x, y+2) && getDominoType(x, y+2) == DominoTypeAscender)
-      {
-        target.blit(gr.getDomino(getDominoType(x, y+2)-1, getDominoState(x, y+2)-1),
-            SpriteXPos,
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x, y+2))+2*gr.blockY());
-      }
-
-      if (x > 0 && !target.isDirty(x-1, y+2) && getDominoType(x-1, y+2) == DominoTypeAscender)
-      {
-        target.blit(gr.getDomino(getDominoType(x-1, y+2)-1, getDominoState(x-1, y+2)-1),
-            SpriteXPos-gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x-1, y+2))+2*gr.blockY());
-      }
-
-      if (x < 19 && !target.isDirty(x+1, y+2) && getDominoType(x+1, y+2) == DominoTypeAscender)
-      {
-        target.blit(gr.getDomino(getDominoType(x+1, y+2)-1, getDominoState(x+1, y+2)-1),
-            SpriteXPos+gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x+1, y+2))+2*gr.blockY());
-      }
-
-      if (getDominoType(x, y) != DominoTypeAscender) continue;
-
-      if (!target.isDirty(x, y+2) && getDominoType(x, y+2) != DominoTypeEmpty)
-      {
-        target.blit(gr.getDomino(getDominoType(x, y+2)-1, getDominoState(x, y+2)-1),
-            SpriteXPos,
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x, y+2))+2*gr.blockY());
-      }
-
-      if (x > 0 && !target.isDirty(x-1, y+2) && getDominoType(x-1, y+2) != DominoTypeEmpty)
-      {
-        target.blit(gr.getDomino(getDominoType(x-1, y+2)-1, getDominoState(x-1, y+2)-1),
-            SpriteXPos-gr.blockX(),
-            SpriteYPos+gr.convertDominoY(getDominoYOffset(x-1, y+2))+2*gr.blockY());
-      }
-
-      if (x >= 19) continue;
-
-      if (!target.isDirty(x+1, y+2)) continue;
-
-      if (getDominoType(x+1, y+2) == DominoTypeEmpty) continue;
-
-      target.blit(gr.getDomino(getDominoType(x+1, y+2)-1, getDominoState(x+1, y+2)-1),
-          SpriteXPos+gr.blockX(),
-          SpriteYPos+gr.convertDominoY(getDominoYOffset(x+1, y+2))+2*gr.blockY());
     }
   }
 
   // repaint the ladders in front of dominos
   for (unsigned int y = 0; y < 13; y++)
     for (unsigned int x = 0; x < 20; x++) {
-      if (target.isDirty(x, y)) {
+      {
         if (getFg(x, y) == FgElementPlatformLadderDown || getFg(x, y) == FgElementLadder) {
           SDL_Rect dst;
           dst.x = x*gr.blockX();

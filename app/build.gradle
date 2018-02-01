@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 android {
-    compileSdkVersion 16
+    compileSdkVersion 19
     buildToolsVersion "27.0.3"
 
     defaultConfig {
         applicationId "org.libsdl.app"
-        minSdkVersion 10
-        targetSdkVersion 12
+        minSdkVersion 11
+        targetSdkVersion 19
     }
 
     buildTypes {

@@ -99,8 +99,7 @@ typedef enum {
 
 
 // initialize the ant state for level entering
-// the level is saved and used later on for dirty block
-// marking, and level modification
+// the level is saved and used later on for level modification
 ant_c::ant_c(levelPlayer_c & level, graphics_c & gr, surface_c & target): level(level), gr(gr), vid(target) {
 
   initForLevel();
@@ -208,7 +207,7 @@ void ant_c::draw(void) {
     vid.blitBlock(gr.getFgTile(levelData_c::FgElementLadder), (blockX)*gr.blockX(), (blockY-1)*gr.blockY());
   }
 
-  if (blockX > 0 && vid.isDirty(blockX-1, blockY))
+  if (blockX > 0)
   {
     if (level.getFg(blockX-1, blockY) == levelData_c::FgElementPlatformLadderUp)
     {
@@ -230,7 +229,7 @@ void ant_c::draw(void) {
     }
   }
 
-  if ((blockX < 19) && vid.isDirty(blockX+1, blockY))
+  if ((blockX < 19))
   {
     if (level.getFg(blockX+1, blockY) == levelData_c::FgElementPlatformLadderUp)
     {
@@ -269,28 +268,6 @@ void ant_c::performAnimation(void) {
 
   if (state != AntAnimNothing) {
     state = callStateFunction(state);
-  }
-
-  if (oldAnimation != animation || oldImage != animationImage)
-  {
-    vid.markDirty(blockX, blockY-1);
-    vid.markDirty(blockX-1, blockY-1);
-    vid.markDirty(blockX+1, blockY-1);
-
-    vid.markDirty(blockX, blockY);
-    vid.markDirty(blockX, blockY-2);
-
-    vid.markDirty(blockX-1, blockY-2);
-    vid.markDirty(blockX-1, blockY);
-    vid.markDirty(blockX-2, blockY-1);
-    vid.markDirty(blockX-2, blockY);
-    vid.markDirty(blockX+1, blockY-2);
-    vid.markDirty(blockX+1, blockY);
-    vid.markDirty(blockX+2, blockY-1);
-    vid.markDirty(blockX+2, blockY);
-
-    vid.markDirty(blockX+1, blockY+1);
-    vid.markDirty(blockX-1, blockY+1);
   }
 }
 

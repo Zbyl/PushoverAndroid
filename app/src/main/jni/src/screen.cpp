@@ -55,7 +55,7 @@ screen_c::screen_c(const graphics_c & g) :
   //Initialize renderer color
   SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
 
-  screenTexture = SDL_CreateTexture( gRenderer, SDL_GetWindowPixelFormat( gWindow ), SDL_TEXTUREACCESS_STREAMING, g.resolutionX(), g.resolutionY() );
+  screenTexture = SDL_CreateTexture(gRenderer, SDL_GetWindowPixelFormat( gWindow ), SDL_TEXTUREACCESS_STREAMING, g.resolutionX(), g.resolutionY());
   if( screenTexture == NULL )
   {
     SDL_Log( "Screen texture could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -64,9 +64,9 @@ screen_c::screen_c(const graphics_c & g) :
 }
 
 screen_c::~screen_c(void) {
-  SDL_DestroyTexture( screenTexture);
-  SDL_DestroyRenderer( gRenderer );
-  SDL_DestroyWindow( gWindow );
+  SDL_DestroyTexture(screenTexture);
+  SDL_DestroyRenderer(gRenderer);
+  SDL_DestroyWindow(gWindow);
   if (!showFullscreen) {
     video = NULL;
   }
@@ -80,18 +80,6 @@ surface_c::~surface_c(void)
 void screen_c::toggleFullscreen(void)
 {
   //SDL_WM_ToggleFullScreen(video);
-}
-
-void surface_c::clearDirty(void)
-{
-  for (unsigned int y = 0; y < 13; y++)
-    dynamicDirty[y] = 0;
-}
-
-void surface_c::markAllDirty(void)
-{
-  for (unsigned int y = 0; y < 13; y++)
-    dynamicDirty[y] = 0xFFFFFFFF;
 }
 
 void surface_c::blit(SDL_Surface * s, int x, int y) {
@@ -190,10 +178,14 @@ void surface_c::gradient(int x, int y, int w, int h) {
   }
 }
 
-void screen_c::flipComplete(void)
+/**
+ * Copies surface to texture.
+ * Both must have the same dimensions and pixel format.
+ */
+void copySurfaceToTexture(SDL_Surface* surface, SDL_Texture* texture)
 {
-  if (SDL_MUSTLOCK(video)) {
-      if(SDL_LockSurface(video) != 0)
+  if (SDL_MUSTLOCK(surface)) {
+      if(SDL_LockSurface(surface) != 0)
       {
         SDL_Log( "Screen surface could not be locked! SDL Error: %s\n", SDL_GetError() );
         throw std::exception();
@@ -202,20 +194,24 @@ void screen_c::flipComplete(void)
 
   void* mPixels;
   int mPitch; // ignoring that for now...
-  SDL_LockTexture( screenTexture, NULL, &mPixels, &mPitch );
-  if (mPitch != video->pitch) {
-    SDL_Log("mPitch != video->pitch");
+  SDL_LockTexture( texture, NULL, &mPixels, &mPitch );
+  if (mPitch != surface->pitch) {
+    SDL_Log("mPitch != surface->pitch");
     throw std::exception();
   }
-  memcpy( mPixels, video->pixels, video->pitch * video->h );
+  memcpy( mPixels, surface->pixels, surface->pitch * surface->h );
 
   //Unlock texture to update
-  SDL_UnlockTexture( screenTexture );
+  SDL_UnlockTexture( texture );
 
-  if (SDL_MUSTLOCK(video)) {
-      SDL_UnlockSurface(video);
+  if (SDL_MUSTLOCK(surface)) {
+      SDL_UnlockSurface(surface);
   }
+}
 
+void screen_c::flipComplete(void)
+{
+  copySurfaceToTexture(video, screenTexture);
   //Clear screen
   //SDL_SetRenderDrawColor( gRenderer, 0xFF, 0xFF, 0xFF, 0xFF );
   //SDL_RenderClear( gRenderer );
@@ -223,45 +219,6 @@ void screen_c::flipComplete(void)
 
   SDL_RenderPresent( gRenderer );
 
-  animationState = 0;
-}
-
-void screen_c::flipDirty(void)
-{
-  flipComplete();
-  return;
-
-  SDL_Rect rects[10*13];
-  int numrects = 0;
-
-  for (int y = 0; y < 13; y++)
-  {
-    int rowStart = -1;
-
-    for (int x = 0; x < 21; x++)
-    {
-      if (isDirty(x, y) && (x < 20))
-      {
-        if (rowStart == -1)
-          rowStart = x;
-      }
-      else if (rowStart != -1)
-      {
-        rects[numrects].y = blockY*y;
-        rects[numrects].x = blockX*rowStart;
-
-        if (y == 12)
-          rects[numrects].h = blockY/2;
-        else
-          rects[numrects].h = blockY;
-
-        rects[numrects].w = blockX*(x-rowStart);
-        numrects++;
-        rowStart = -1;
-      }
-    }
-  }
-  //SDL_UpdateRects(video, numrects, rects);
   animationState = 0;
 }
 

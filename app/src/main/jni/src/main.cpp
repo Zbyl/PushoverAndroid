@@ -226,7 +226,6 @@ int playTick(levelPlayer_c & l, ant_c & a)
   l.performDoors();
   int res = l.performDominos(a);
 
-  l.updateBackground();
   l.drawDominos();
   a.draw();
 
@@ -396,11 +395,9 @@ try {
       nextState = ST_PREPLAY;
     } else {
       nextState = ST_PROFILE_INIT;
-      screen.markAllDirty();
     }
   } else {
     nextState = ST_PROFILE_INIT;
-    screen.markAllDirty();
   }
 
 
@@ -422,6 +419,10 @@ try {
 
       // wait for the right amount of time for the next frame
       ticks += 1000 / 18;
+      if (SDL_GetTicks() > ticks + 1000) {
+        // Hacky pause support.
+        ticks = SDL_GetTicks();
+      }
       if (SDL_GetTicks() < ticks)
         SDL_Delay(ticks - SDL_GetTicks());
 
@@ -523,7 +524,6 @@ try {
 
             case ST_PREREPLAY:
             case ST_PREPLAY:
-              l.updateBackground();
                   l.drawDominos();
                   a.draw();
                   ticks = SDL_GetTicks();    // this might have taken some time so reinit the ticks
@@ -674,8 +674,7 @@ try {
               if (window->isDone()) {
                 switch (dynamic_cast<listWindow_c *>(window)->getSelection()) {
                   case 0:   // toggle full screen
-                    screen.toggleFullscreen();
-                        screen.markAllDirty();
+                        screen.toggleFullscreen();
                         window->resetWindow();
                         break;
 
@@ -748,6 +747,8 @@ try {
             handlePlayTouchEvents(event);
             unsigned int keyMask = getKeyMask();
             if ( (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) || (keyMask & KEY_ESC) )
+              nextState = ST_QUIT;
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK)
               nextState = ST_QUIT;
             if ( (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) || (keyMask & KEY_F1) )
               nextState = ST_HELP;
@@ -1022,8 +1023,7 @@ try {
 
       // flip the screen, but not when in the preplaymodes
       if (currentState != ST_PREPLAY && currentState != ST_PREREPLAY) {
-        screen.flipDirty();
-        screen.clearDirty();
+        screen.flipComplete();
       }
     }
   }

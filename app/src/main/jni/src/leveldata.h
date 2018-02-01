@@ -70,6 +70,8 @@ class levelData_c {
 
     bool triggerFalln;
 
+protected:
+    bool dynamicallyModfied;    ///< True if background or foreground was dynamically modified.
 
   public:
     levelData_c(void);
@@ -153,8 +155,8 @@ class levelData_c {
     unsigned char getDominoExtra(unsigned int x, unsigned int y) const { return level[y][x].dominoExtra; }
     signed char getDominoYOffset(unsigned int x, unsigned int y) const { return level[y][x].dominoYOffset; }
 
-    void setBg(unsigned int x, unsigned int y, int layer, int val) { level[y][x].bg[layer] = val; }
-    void setFg(unsigned int x, unsigned int y, int val) { level[y][x].fg = val; }
+    void setBg(unsigned int x, unsigned int y, int layer, int val) { level[y][x].bg[layer] = val; dynamicallyModfied = true; }
+    void setFg(unsigned int x, unsigned int y, int val) { level[y][x].fg = val; dynamicallyModfied = true; }
     void setDominoType(unsigned int x, unsigned int y, int val) { level[y][x].dominoType = val; }
     void setDominoState(unsigned int x, unsigned int y, int val) { level[y][x].dominoState = val; }
     void setDominoDir(unsigned int x, unsigned int y, int val) { level[y][x].dominoDir = val; }
