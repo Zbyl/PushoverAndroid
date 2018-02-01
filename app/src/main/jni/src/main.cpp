@@ -419,6 +419,10 @@ try {
 
       // wait for the right amount of time for the next frame
       ticks += 1000 / 18;
+      if (SDL_GetTicks() > ticks + 1000) {
+        // Hacky pause support.
+        ticks = SDL_GetTicks();
+      }
       if (SDL_GetTicks() < ticks)
         SDL_Delay(ticks - SDL_GetTicks());
 
@@ -743,6 +747,8 @@ try {
             handlePlayTouchEvents(event);
             unsigned int keyMask = getKeyMask();
             if ( (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE) || (keyMask & KEY_ESC) )
+              nextState = ST_QUIT;
+            if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_AC_BACK)
               nextState = ST_QUIT;
             if ( (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_F1) || (keyMask & KEY_F1) )
               nextState = ST_HELP;
