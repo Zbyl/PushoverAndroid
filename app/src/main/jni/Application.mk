@@ -4,7 +4,8 @@
 #APP_STL := stlport_static
 APP_STL := c++_shared
 
-APP_ABI := armeabi armeabi-v7a x86
+#APP_ABI := armeabi armeabi-v7a x86
+APP_ABI := armeabi armeabi-v7a
 
 # Min SDK level
 APP_PLATFORM=android-10
