@@ -23,6 +23,8 @@
 #define __LEVEL_DATA_H__
 
 #include <string>
+#include <vector>
+#include <utility>
 
 class textsections_c;
 
@@ -71,7 +73,7 @@ class levelData_c {
     bool triggerFalln;
 
 protected:
-    bool dynamicallyModfied;    ///< True if background or foreground was dynamically modified.
+    std::vector<std::pair<int, int>> dynamicallyModfied;    ///< Coordinates of blocks in background or foreground that were dynamically modified.
 
   public:
     levelData_c(void);
@@ -155,8 +157,8 @@ protected:
     unsigned char getDominoExtra(unsigned int x, unsigned int y) const { return level[y][x].dominoExtra; }
     signed char getDominoYOffset(unsigned int x, unsigned int y) const { return level[y][x].dominoYOffset; }
 
-    void setBg(unsigned int x, unsigned int y, int layer, int val) { level[y][x].bg[layer] = val; dynamicallyModfied = true; }
-    void setFg(unsigned int x, unsigned int y, int val) { level[y][x].fg = val; dynamicallyModfied = true; }
+    void setBg(unsigned int x, unsigned int y, int layer, int val) { level[y][x].bg[layer] = val; dynamicallyModfied.push_back({x, y}); }
+    void setFg(unsigned int x, unsigned int y, int val) { level[y][x].fg = val; dynamicallyModfied.push_back({x, y}); }
     void setDominoType(unsigned int x, unsigned int y, int val) { level[y][x].dominoType = val; }
     void setDominoState(unsigned int x, unsigned int y, int val) { level[y][x].dominoState = val; }
     void setDominoDir(unsigned int x, unsigned int y, int val) { level[y][x].dominoDir = val; }
@@ -168,10 +170,10 @@ protected:
 
     unsigned char getEntryDoor(void) const { return getFg(doorEntryX, doorEntryY); }
     unsigned char getExitDoor(void) const { return getFg(doorExitX, doorExitY); }
-    void openEntryDoorStep(void) { level[doorEntryY][doorEntryX].fg++; }
-    void closeEntryDoorStep(void) { level[doorEntryY][doorEntryX].fg--; }
-    void openExitDoorStep(void) { level[doorExitY][doorExitX].fg++; }
-    void closeExitDoorStep(void) { level[doorExitY][doorExitX].fg--; }
+    void openEntryDoorStep(void) { level[doorEntryY][doorEntryX].fg++; dynamicallyModfied.push_back({doorEntryX, doorEntryY}); }
+    void closeEntryDoorStep(void) { level[doorEntryY][doorEntryX].fg--; dynamicallyModfied.push_back({doorEntryX, doorEntryY}); }
+    void openExitDoorStep(void) { level[doorExitY][doorExitX].fg++; dynamicallyModfied.push_back({doorExitX, doorExitY}); }
+    void closeExitDoorStep(void) { level[doorExitY][doorExitX].fg--; dynamicallyModfied.push_back({doorExitX, doorExitY}); }
 
     unsigned char getEntryX(void) const { return doorEntryX; }
     unsigned char getEntryY(void) const { return doorEntryY; }

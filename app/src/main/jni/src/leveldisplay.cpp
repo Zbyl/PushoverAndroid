@@ -42,7 +42,7 @@ void levelDisplay_c::load(const textsections_c & sections, const std::string & u
 
   Min = Sec = -1;
 
-  dynamicallyModfied = true;  // Hack
+  dynamicallyModfied.push_back({-1, -1}); // Redraw all.
 }
 
 levelDisplay_c::levelDisplay_c(surface_c & t, graphics_c & g) : background(t.getIdentical()), target(t), gr(g) {
@@ -53,6 +53,18 @@ levelDisplay_c::~levelDisplay_c(void) { }
 
 void levelDisplay_c::prepareBackground(void)
 {
+  if (dynamicallyModfied.size() == 0)
+    return;
+
+  if ((dynamicallyModfied.size() < 20) && (dynamicallyModfied.front().first != -1))
+  {
+    for (auto block : dynamicallyModfied) {
+      updateBackgroundBlock(block.first, block.second);
+    }
+    dynamicallyModfied.clear();
+    return;
+  }
+
   for (unsigned int y = 0; y < 13; y++)
   {
     for (unsigned int x = 0; x < 20; x++)
@@ -64,6 +76,15 @@ void levelDisplay_c::prepareBackground(void)
   }
 
   background.gradient(0, 0, 20 * gr.blockX(), 13 * gr.blockY());
+  dynamicallyModfied.clear();
+}
+
+void levelDisplay_c::updateBackgroundBlock(int x, int y)
+{
+  for (unsigned char b = 0; b < getNumBgLayer(); b++)
+    background.blitBlock(gr.getBgTile(getBg(x, y, b)), x*gr.blockX(), y*gr.blockY());
+  background.blitBlock(gr.getFgTile(getFg(x, y)), x*gr.blockX(), y*gr.blockY());
+  background.gradient(x*gr.blockX(), y*gr.blockY(), gr.blockX(), gr.blockY());
 }
 
 void levelDisplay_c::drawDominos(void) {
@@ -86,10 +107,7 @@ void levelDisplay_c::drawDominos(void) {
     Sec = newSec;
   }
 
-  if (dynamicallyModfied) {
-    prepareBackground();
-    dynamicallyModfied = false;
-  }
+  prepareBackground();
 
   SDL_BlitSurface(background.getSurface(), NULL, target.getSurface(), NULL);
 

@@ -55,6 +55,7 @@ class levelDisplay_c : public levelData_c {
 
     /* prepares level background */
     void prepareBackground(void);
+    void updateBackgroundBlock(int x, int y);
 
     /* draw the changed stuff into the target surface */
     void drawDominos(void);

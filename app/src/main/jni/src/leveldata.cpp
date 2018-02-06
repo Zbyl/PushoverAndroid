@@ -34,7 +34,6 @@
 #include <iomanip>
 
 levelData_c::levelData_c(void)
-  : dynamicallyModfied(false) // Hack to not draw background before level is loaded.
 {
   for (unsigned int y = 0; y < 13; y++)
     for (unsigned int x = 0; x < 20; x++) {
