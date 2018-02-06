@@ -27,6 +27,9 @@
 
 #include <SDL.h>
 
+const bool USING_ANDROID = true;
+const bool USING_TOUCH_UI = USING_ANDROID;
+
 // one of those boxed windows
 // the window may update its content, but stacking the windows.... well I don't know if
 // that will be possible, try to keep only one window

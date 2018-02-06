@@ -585,8 +585,10 @@ try {
                     nextState = ST_ABOUT;
                         break;   // about window
                   case 4:
-                    nextState = ST_EXIT;
-                        break;    // exit program
+                    if (!USING_ANDROID) {
+                        nextState = ST_EXIT;
+                    }
+                    break;    // exit program
                 }
               }
             }

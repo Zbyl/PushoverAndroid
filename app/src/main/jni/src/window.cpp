@@ -69,9 +69,6 @@
 #define SEP_COL_G 90
 #define SEP_COL_B 60
 
-const bool USING_ANDROID = true;
-const bool USING_TOUCH_UI = USING_ANDROID;
-
 window_c::window_c(unsigned char x_, unsigned char y_, unsigned char w_, unsigned char h_, surface_c & s, graphics_c & g) : x(x_), y(y_), w(w_), h(h_), surf(s), gr(g), escapePressed(false), screenTouched(false) {
 
   if (w < 2 || h < 2) return;
