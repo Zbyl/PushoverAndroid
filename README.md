@@ -16,9 +16,45 @@ This project uses Android Studio 3 and requires the following libraries:
   Note: Set SUPPORT_MP3_MPG123 ?= false in Android.mk for x86 build to work.
   This should be fixed in newer versions of SDL2_mixer.
 - SDL2_ttf-2.0.14
-- zlib1211
-- lpng1634
 - lua-5.3.4
+- lpng1634
+- zlib1211
+
+Those libraries should be unpacked to:
+app/src/main/jni/SDL2/*
+app/src/main/jni/SDL2_mixer/*
+app/src/main/jni/SDL2_ttf/*
+app/src/main/jni/lua/*
+app/src/main/jni/lpng/*
+app/src/main/jni/zlib/*
+
+Use *.mk files that are provided in this repository.
+
+Make sure to build a Debug build variant, otherwise you will get errors that .apk is not signed.
+
+# Controls
+
+Screen is divided into 9 parts. Touch any to perform an action:
+
+```
+ Grab |  Up  | Grab
+------|------|------
+ Left | Grab | Right
+------|------|------
+ Esc  | Down | Help
+```
+
+Press Left/Right + Grab to push a block.
+
+# Major differences from original project
+
+Basic Android support.
+The game is playable, but the UI is not very convenient.
+
+Ported code to SDL 2.
+
+Removed dirty rect tracking. Everything is drawn every time (except for background, which is cached).
+This eliminated a fair amount of code.
 
 # Todo
 
@@ -32,17 +68,14 @@ This project uses Android Studio 3 and requires the following libraries:
 - Loading level sets in levelset.cpp
 - Find all stat references.
 - Remove file IO from pngloader. Use SDL.
-- Remove AROS support.
 - Remove config.h. Introduce constant for version.
 - Fix t display (long cast) in userData_c::userData_c.
 - Add click feedback on windows.
-- Dynamic modification of background is slow.
 
 - Re-enable localization
 - Cleanup fullscreen handling.
 - Re-enable windowed mode on desktops.
 - Prepare CMake projects for Windows and Linux.
-- Remove dirty rects tracking.
 - Text input handling (backspace) is not utf-clean.
 - Input window won't work well with big keyboards.
 
